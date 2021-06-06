@@ -1,0 +1,83 @@
+---
+- name: Setting up LAMP Stack
+  hosts: webserver
+  become: true
+  vars_files:
+    - vars/default.yml
+
+  tasks:
+    - name: Install prerequisites
+      apt: name={{ item }} update_cache=yes state=latest force_apt_get=yes
+      loop: [ 'aptitude' ]
+
+  #Apache Configuration
+    - name: Install LAMP Packages
+      apt: name={{ item }} update_cache=yes state=latest
+      loop: [ 'apache2', 'mysql-server', 'python3-pymysql', 'php', 'php-mysql', 'libapache2-mod-php' ]
+
+  # MySQL Configuration
+    - name: Sets the root password
+      mysql_user:
+        name: root
+        password: root
+        login_unix_socket: /var/run/mysqld/mysqld.sock
+        state: present
+
+    - name: Removes all anonymous user accounts
+      mysql_user:
+        name: ''
+        host_all: yes
+        state: absent
+        login_user: root
+        login_password: "{{ mysql_root_password }}"
+
+    - name: Removes the MySQL test database
+      mysql_db:
+        name: test
+        state: absent
+        login_user: root
+        login_password: "{{ mysql_root_password }}"
+
+  # UFW Configuration
+    - name: "UFW - Allow HTTP on port {{ http_port }}"
+      ufw:
+        rule: allow
+        port: "{{ http_port }}"
+        proto: tcp
+
+  # Setting Frontend
+    - name: Serves my index.html
+      copy:
+        src: "/home/ubuntu/zer0-touch-cloud/version-2/ansible/files/index.html"
+        dest: "/var/www/html/index.html"
+        mode: '0777'
+
+  # Restarting Apache
+    - name: Restart Apache
+      service:
+        name: apache2
+        state: restarted
+
+    - name: Install Java Requirements
+      apt:
+        update_cache: yes
+        name: default-jdk
+      become: yes
+
+    - name: Install Jenkins
+      shell: |
+        wget -q -O - https://pkg.jenkins.io/debian/jenkins.io.key | sudo apt-key add -
+        sudo sh -c 'echo deb https://pkg.jenkins.io/debian-stable binary/ > /etc/apt/sources.list.d/jenkins.list'
+        sudo apt-get update -y
+        sudo apt-get install jenkins -y
+
+    - name: Run Jenkins
+      shell: /etc/init.d/jenkins start
+      become: yes
+
+    - name: Jenkins password
+      shell: cat /var/lib/jenkins/secrets/initialAdminPassword
+      become: yes
+      register: ps
+
+    - debug: msg={{ ps.stdout }}

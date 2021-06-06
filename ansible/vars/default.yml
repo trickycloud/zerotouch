@@ -1,0 +1,6 @@
+---
+mysql_root_password: root
+app_user: ubuntu
+disable_default: true
+http_port: "80"
+

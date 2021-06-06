@@ -1,0 +1,4 @@
+output "this_key_pair_key_pair_id" {
+    value = aws_key_pair.new.key_pair_id
+}
+#}
