@@ -5,6 +5,7 @@ pipeline {
         stage('Deploy') {
             steps {
                  sh '''
+                   cd jenkins
                    chmod +x deploy.sh
                    ./deploy.sh
                     '''
@@ -14,6 +15,7 @@ pipeline {
         stage('Output'){
             steps {
                 sh '''
+                   cd jenkins
                    chmod +x output.sh
                    ./output.sh
                     '''
@@ -23,6 +25,7 @@ pipeline {
         stage('Ansible_run'){
             steps {
                 sh '''
+                   cd jenkins
                    chmod +x ansible.sh
                    ./ansible.sh
                     '''
