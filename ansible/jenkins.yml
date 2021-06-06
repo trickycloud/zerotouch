@@ -1,0 +1,29 @@
+---
+- name: Configure Jenkins Server
+  hosts: server
+  tasks:
+
+    - name: Install Java Requirements
+      apt:
+        update_cache: yes
+        name: default-jdk
+      become: yes
+
+    - name: Install Jenkins
+      shell: | 
+        wget -q -O - https://pkg.jenkins.io/debian/jenkins.io.key | sudo apt-key add -
+        sudo sh -c 'echo deb https://pkg.jenkins.io/debian-stable binary/ > /etc/apt/sources.list.d/jenkins.list'
+        sudo apt-get update -y
+        sudo apt-get install jenkins -y
+
+    - name: Run Jenkins
+      shell: /etc/init.d/jenkins start
+      become: yes
+
+    - name: Jenkins password
+      shell: cat /var/lib/jenkins/secrets/initialAdminPassword
+      become: yes
+      register: ps
+
+    - debug: msg={{ ps.stdout }}
+

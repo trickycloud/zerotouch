@@ -1,6 +1,6 @@
 [webserver]
-34.238.27.100
-3.236.160.94
+18.208.202.18
+3.238.1.66
 [all:vars]
 ansible_ssh_private_key_file=/home/ubuntu/zer0-touch-cloud/version-2/ansible/test-api.pem
 ansible_user=ubuntu
