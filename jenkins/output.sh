@@ -1,7 +1,7 @@
 #!/bin/bash
 
 
-cd zero_touch_cloud
+cd ../zero_touch_cloud
 terraform output ec2_public_ip > output.txt
 sudo chmod 777 output.txt
 echo [web_server] > i.txt
